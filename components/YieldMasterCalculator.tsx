@@ -52,36 +52,25 @@ export default function YieldMasterCalculator() {
   const resultRef = useRef(null);
 
   const downloadPDF = () => {
-    try {
-      if (resultRef.current) {
-        setTimeout(() => {
-          html2canvas(resultRef.current, { scale: 2 }).then(canvas => {
-        setTimeout(() => {
-          html2canvas(resultRef.current, { scale: 2 }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'pt', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const imgWidth = pageWidth - 40;
-            const imgHeight = canvas.height * imgWidth / canvas.width;
-            pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-            pdf.save('YieldMaster_Calculation.pdf');
-          });
-        }, 250);
+  try {
+    if (resultRef.current) {
+      setTimeout(() => {
+        html2canvas(resultRef.current as HTMLElement, { scale: 2 }).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
           const pdf = new jsPDF('p', 'pt', 'a4');
           const pageWidth = pdf.internal.pageSize.getWidth();
-          const imgWidth = pageWidth - 40; // 20pt margin
+          const imgWidth = pageWidth - 40;
           const imgHeight = canvas.height * imgWidth / canvas.width;
           pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
           pdf.save('YieldMaster_Calculation.pdf');
-          });
-        }, 250);
-      }
-    } catch (error) {
-      console.error('PDF generation failed:', error);
-      alert('PDF generation failed. See console for details.');
+        });
+      }, 250);
     }
-  };
-
+  } catch (error) {
+    console.error('PDF generation failed:', error);
+    alert('PDF generation failed. See console for details.');
+  }
+};
   const calculate = () => {
     const seed = seedTypes.find(s => s['Seed Type'] === seedType);
     const prod = products.find(p => `${p['Product Name']} - ${p['Package Size']} ${p['Package Units']} - ${p['Product Packaging']}` === product);
