@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const seedTypes = [
   { "Seed Type": "Alfalfa", "Seeds/lb": "210000", "Seeds/Unit": "10500000", "Lbs/Unit": 50 },
@@ -54,37 +51,6 @@ export default function YieldMasterCalculator() {
   const [result, setResult] = useState(null);
   const resultRef = useRef(null);
 
-  const downloadPDF = () => {
-    try {
-      if (resultRef.current) {
-        setTimeout(() => {
-          html2canvas(resultRef.current, { scale: 2 }).then(canvas => {
-        setTimeout(() => {
-          html2canvas(resultRef.current, { scale: 2 }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'pt', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const imgWidth = pageWidth - 40;
-            const imgHeight = canvas.height * imgWidth / canvas.width;
-            pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-            pdf.save('YieldMaster_Calculation.pdf');
-          });
-        }, 250);
-          const pdf = new jsPDF('p', 'pt', 'a4');
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const imgWidth = pageWidth - 40; // 20pt margin
-          const imgHeight = canvas.height * imgWidth / canvas.width;
-          pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-          pdf.save('YieldMaster_Calculation.pdf');
-          });
-        }, 250);
-      }
-    } catch (error) {
-      console.error('PDF generation failed:', error);
-      alert('PDF generation failed. See console for details.');
-    }
-  };
-
   const calculate = () => {
     const seed = seedTypes.find(s => s['Seed Type'] === seedType);
     const prod = products.find(p => `${p['Product Name']} - ${p['Package Size']} ${p['Package Units']} - ${p['Product Packaging']}` === product);
@@ -124,11 +90,9 @@ export default function YieldMasterCalculator() {
       'Product Cost per Ounce': `$${formatNumber(costPerOz, 2)}`,
       'Product Cost per Unit of Treated Seed': `$${formatNumber(costPerUnit, 2)}`,
       'Product Cost per Acre': `$${formatNumber(costPerAcre, 2)}`,
-      
     });
   };
 
-  // JSX remains the same
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6 bg-zinc-900 text-white min-h-screen">
       <h1 className="text-2xl font-bold text-center text-green-300">YieldMaster Solutions Planter Box Calculator</h1>
@@ -194,16 +158,15 @@ export default function YieldMasterCalculator() {
 
       {result && (
         <Card ref={resultRef} className="mt-6 border-2 border-green-400 bg-zinc-800 text-white">
-            <CardHeader className="text-center">
-              <CardTitle className="text-lg font-semibold text-green-300">Calculation Results</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {Object.entries(result).map(([label, value], i) => (
-                <div key={i}><strong>{label}: </strong>{value}</div>
-              ))}
-            </CardContent>
-            
-          </Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-lg font-semibold text-green-300">Calculation Results</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {Object.entries(result).map(([label, value], i) => (
+              <div key={i}><strong>{label}: </strong>{value}</div>
+            ))}
+          </CardContent>
+        </Card>
       )}
     </div>
   );
