@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import * as html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
