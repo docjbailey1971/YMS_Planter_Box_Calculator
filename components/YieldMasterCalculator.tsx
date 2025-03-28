@@ -49,11 +49,11 @@ export default function YieldMasterCalculator() {
   const [rateType, setRateType] = useState('seeds');
   const [overrideSeeds, setOverrideSeeds] = useState('');
   const [result, setResult] = useState(null);
-  const resultRef = useRef(null);
+  const resultRef = useRef<HTMLElement>(null);
 
   const downloadPDF = () => {
   try {
-    if (resultRef.current) {
+   if (resultRef.current !== null) {
       setTimeout(() => {
         html2canvas(resultRef.current as HTMLElement, { scale: 2 }).then(canvas => {
           const imgData = canvas.toDataURL('image/png');
