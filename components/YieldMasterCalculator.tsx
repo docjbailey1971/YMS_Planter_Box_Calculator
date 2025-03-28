@@ -80,7 +80,7 @@ export default function YieldMasterCalculator() {
     const acresNum = parseFloat(acres);
     const seedRate = parseFloat(seedingRate);
     const seedsPerUnit = parseFloat(seed['Seeds/Unit'].replace(/,/g, ''));
-    const lbsPerUnit = parseFloat(seed['Lbs/Unit']);
+    const lbsPerUnit = parseFloat(seed['Lbs/Unit']).toString();
 
     const appRate = parseFloat(prod['Application Rate in Ounces']);
     const costPerOz = parseFloat(prod['Product Cost per oz'].replace(/[^\d.-]/g, ''));
