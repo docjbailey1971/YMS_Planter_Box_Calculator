@@ -34,7 +34,7 @@ const products = [
   { "Product Name": "Terrasym 450 + DUST + TS201 for Corn Root Worm", "Package Size": 25.0, "Package Units": "oz", "Product Packaging": "Pouches", "Product Cost per Package": "$1,740.50", "Product Cost per oz": "$69.62", "Application Rate in Ounces": 0.5 }
 ];
 
-function formatNumber(n, decimals = 0) {
+function formatNumber(n: number, decimals = 0) {
   return Number(n).toLocaleString(undefined, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
