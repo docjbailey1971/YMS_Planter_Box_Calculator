@@ -48,7 +48,7 @@ export default function YieldMasterCalculator() {
   const [seedingRate, setSeedingRate] = useState('');
   const [rateType, setRateType] = useState('seeds');
   const [overrideSeeds, setOverrideSeeds] = useState('');
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<Record<string, string | number> | null>(null);
   const resultRef = useRef<HTMLElement>(null);
 
   const downloadPDF = () => {
