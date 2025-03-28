@@ -85,7 +85,7 @@ export default function YieldMasterCalculator() {
     const appRate = parseFloat(prod['Application Rate in Ounces'].toString());
     const costPerOz = parseFloat(prod['Product Cost per oz'].replace(/[^\d.-]/g, ''));
     const costPerPackage = parseFloat(prod['Product Cost per Package'].replace(/[^\d.-]/g, ''));
-    const packageSize = parseFloat(prod['Package Size']);
+    const packageSize = parseFloat(prod['Package Size'].toString());
 
     const totalSeeds = rateType === 'seeds' ? acresNum * seedRate : acresNum * seedRate * seedsPerLb;
     const totalWeight = totalSeeds / seedsPerLb;
