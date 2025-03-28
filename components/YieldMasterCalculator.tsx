@@ -37,7 +37,7 @@ const products = [
 function formatNumber(n: number, decimals = 0) {
   return Number(n).toLocaleString(undefined, {
     minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    maximumFractionDigits: decimals,
   });
 }
 
@@ -52,36 +52,31 @@ export default function YieldMasterCalculator() {
   const resultRef = useRef<HTMLDivElement>(null);
 
   const downloadPDF = () => {
-  try {
-   if (resultRef.current !== null) {
-      setTimeout(() => {
-        html2canvas(resultRef.current as HTMLElement, { scale: 2 }).then(canvas => {
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF('p', 'pt', 'a4');
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const imgWidth = pageWidth - 40;
-          const imgHeight = canvas.height * imgWidth / canvas.width;
-          pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-          pdf.save('YieldMaster_Calculation.pdf');
-        });
-      }, 250);
+    if (resultRef.current !== null) {
+      html2canvas(resultRef.current, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'pt', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const imgWidth = pageWidth - 40;
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+        pdf.save('YieldMaster_Calculation.pdf');
+      });
     }
-  } catch (error) {
-    console.error('PDF generation failed:', error);
-    alert('PDF generation failed. See console for details.');
-  }
-};
+  };
+
   const calculate = () => {
-    const seed = seedTypes.find(s => s['Seed Type'] === seedType);
-    const prod = products.find(p => `${p['Product Name']} - ${p['Package Size']} ${p['Package Units']} - ${p['Product Packaging']}` === product);
+    const seed = seedTypes.find((s) => s['Seed Type'] === seedType);
+    const prod = products.find(
+      (p) => `${p['Product Name']} - ${p['Package Size']} ${p['Package Units']} - ${p['Product Packaging']}` === product
+    );
     if (!seed || !prod || !acres || !seedingRate) return;
 
-    const seedsPerLb = overrideSeeds ? parseFloat(overrideSeeds) : parseFloat(seed['Seeds/lb'].replace(/,/g, ''));
+    const seedsPerLb = overrideSeeds ? parseFloat(overrideSeeds) : parseFloat(seed['Seeds/lb'].toString());
     const acresNum = parseFloat(acres);
     const seedRate = parseFloat(seedingRate);
-    const seedsPerUnit = parseFloat(seed['Seeds/Unit'].replace(/,/g, ''));
+    const seedsPerUnit = parseFloat(seed['Seeds/Unit'].toString());
     const lbsPerUnit = parseFloat(seed['Lbs/Unit'].toString());
-
     const appRate = parseFloat(prod['Application Rate in Ounces'].toString());
     const costPerOz = parseFloat(prod['Product Cost per oz'].replace(/[^\d.-]/g, ''));
     const costPerPackage = parseFloat(prod['Product Cost per Package'].replace(/[^\d.-]/g, ''));
@@ -110,19 +105,35 @@ export default function YieldMasterCalculator() {
       'Product Cost per Ounce': `$${formatNumber(costPerOz, 2)}`,
       'Product Cost per Unit of Treated Seed': `$${formatNumber(costPerUnit, 2)}`,
       'Product Cost per Acre': `$${formatNumber(costPerAcre, 2)}`,
-      
     });
   };
 
-  // JSX remains the same
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6 bg-zinc-900 text-white min-h-screen">
-      <h1 className="text-2xl font-bold text-center text-green-300">YieldMaster Solutions Planter Box Calculator</h1>
-      <p className="text-center text-sm text-muted">Please enter your planting and product information below.</p>
+    <div className="max-w-5xl mx-auto p-6 space-y-8 bg-gradient-to-b from-zinc-950 to-zinc-900 text-white min-h-screen">
+      <div className="text-center mb-6">
+        <img src="/yms-logo.png" alt="YMS Logo" width={120} height={120} className="mx-auto mb-2" />
+        <h1 className="text-4xl font-extrabold text-green-400 tracking-tight">YieldMaster Solutions</h1>
+        <p className="text-lg text-zinc-400">Planter Box Treatment Calculator</p>
+      </div>
 
-      <Card>
-        <CardHeader><CardTitle>Calculator Form</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          className="text-sm text-zinc-400 hover:text-white border border-zinc-600 px-3 py-1 rounded"
+          onClick={() => {
+            const root = document.documentElement;
+            root.classList.toggle('dark');
+          }}
+        >
+          Toggle Theme
+        </Button>
+      </div>
+
+      <Card className="bg-zinc-800 shadow-lg border border-zinc-700">
+        <CardHeader>
+          <CardTitle className="text-green-300">Calculator Form</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <Label>Seed Type</Label>
             <Select onValueChange={setSeedType}>
@@ -138,7 +149,7 @@ export default function YieldMasterCalculator() {
             <Label>How many acres to be planted?</Label>
             <Input value={acres} onChange={(e) => setAcres(e.target.value)} type="number" />
           </div>
-          <div className="col-span-2">
+          <div className="md:col-span-2">
             <Label>Product</Label>
             <Select onValueChange={setProduct}>
               <SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger>
@@ -165,31 +176,36 @@ export default function YieldMasterCalculator() {
               </SelectContent>
             </Select>
           </div>
-          <div className="col-span-2">
+          <div className="md:col-span-2">
             <Label>Override Seeds per Pound (optional)</Label>
             {seedType && (
-              <div className='text-sm text-muted-foreground mb-1'>Default Seeds/lb for {seedType}: {seedTypes.find(s => s['Seed Type'] === seedType)?.['Seeds/lb']}</div>
+              <div className='text-sm text-zinc-400 mb-1'>Default Seeds/lb for {seedType}: {seedTypes.find(s => s['Seed Type'] === seedType)?.['Seeds/lb']}</div>
             )}
             <Input value={overrideSeeds} onChange={(e) => setOverrideSeeds(e.target.value)} type="number" />
           </div>
-          <div className="col-span-2 text-center">
-            <Button onClick={calculate}>Calculate</Button>
+          <div className="md:col-span-2 text-center">
+            <Button onClick={calculate} className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-full text-lg">Calculate</Button>
           </div>
         </CardContent>
       </Card>
 
       {result && (
-        <Card ref={resultRef} className="mt-6 border-2 border-green-400 bg-zinc-800 text-white">
-            <CardHeader className="text-center">
-              <CardTitle className="text-lg font-semibold text-green-300">Calculation Results</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {Object.entries(result).map(([label, value], i) => (
-                <div key={i}><strong>{label}: </strong>{value}</div>
-              ))}
-            </CardContent>
-            
-          </Card>
+        <Card ref={resultRef} className="mt-6 border border-green-400 bg-zinc-800 text-white shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-semibold text-green-300">Calculation Results</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(result).map(([label, value], i) => (
+              <div key={i} className="bg-zinc-900 rounded-xl p-3 border border-zinc-700">
+                <strong className="text-green-400 block text-sm mb-1">{label}</strong>
+                <span className="text-lg font-medium">{value}</span>
+              </div>
+            ))}
+          </CardContent>
+          <div className="text-center my-4">
+            <Button onClick={downloadPDF} className="bg-green-700 hover:bg-green-600 px-6 py-2 rounded-full text-white">Download PDF</Button>
+          </div>
+        </Card>
       )}
     </div>
   );
