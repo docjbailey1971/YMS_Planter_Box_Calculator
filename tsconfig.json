@@ -1,23 +1,19 @@
-{
-  "compilerOptions": {
-    "target": "esnext",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
-}
+ 1 file changed, 11 deletions(-)
+PS C:\Users\jbailey\YMS_Planter_Box_Calculator> git push origin main
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 314 bytes | 157.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/docjbailey1971/YMS_Planter_Box_Calculator.git
+   fc672fa..926e038  main -> main
+PS C:\Users\jbailey\YMS_Planter_Box_Calculator> git add tsconfig.json
+PS C:\Users\jbailey\YMS_Planter_Box_Calculator> git commit -m "Fix tsconfig.json syntax for successful Vercel build"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+PS C:\Users\jbailey\YMS_Planter_Box_Calculator> git push origin main
+Everything up-to-date
