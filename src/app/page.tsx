@@ -121,128 +121,39 @@ export default function Home() {
     });
   };
 
-  return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">YMS Planter Box Calculator</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Seed Type Dropdown */}
-          <div>
-            <label className="block mb-1" htmlFor="seedType">
-              Seed Type
-            </label>
-            <select
-              id="seedType"
-              value={selectedSeedType}
-              onChange={(e) => setSelectedSeedType(e.target.value)}
-              className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select a seed type</option>
-              {seedTypes.map((seed, index) => (
-                <option key={index} value={seed["Seed Type"]}>
-                  {seed["Seed Type"]}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* Acres Input */}
-          <div>
-            <label className="block mb-1" htmlFor="acres">
-              Number of Acres
-            </label>
-            <input
-              id="acres"
-              type="number"
-              value={acres}
-              onChange={(e) =>
-                setAcres(e.target.value ? parseFloat(e.target.value) : "")
-              }
-              className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter number of acres"
-            />
-          </div>
-          {/* Product Dropdown */}
-          <div>
-            <label className="block mb-1" htmlFor="product">
-              Product Selection
-            </label>
-            <select
-              id="product"
-              value={selectedProduct}
-              onChange={(e) => setSelectedProduct(e.target.value)}
-              className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select a product</option>
-              {products.map((prod, index) => (
-                <option key={index} value={prod["Product Name"]}>
-                  {prod["Product Name"]}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* Seeding Rate Input */}
-          <div>
-            <label className="block mb-1" htmlFor="seedingRate">
-              Seeding Rate
-            </label>
-            <input
-              id="seedingRate"
-              type="number"
-              value={seedingRate}
-              onChange={(e) =>
-                setSeedingRate(e.target.value ? parseFloat(e.target.value) : "")
-              }
-              className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter seeding rate"
-            />
-          </div>
-          {/* Seed Override Input */}
-          <div>
-            <label className="block mb-1" htmlFor="seedOverride">
-              Seed Override (seeds per lb)
-            </label>
-            <input
-              id="seedOverride"
-              type="number"
-              value={seedOverride}
-              onChange={(e) =>
-                setSeedOverride(e.target.value ? parseFloat(e.target.value) : "")
-              }
-              className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter seed override"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-2 mt-4 bg-blue-600 hover:bg-blue-700 rounded font-semibold"
-          >
-            Calculate
-          </button>
-        </form>
-        {/* Display Results and PDF Download Button */}
+ return (
+  <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+    <div className="w-full max-w-md">
+      <h1 className="text-2xl font-bold mb-6 text-center">YMS Planter Box Calculator</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Add your form fields here */}
+      </form>
       {result && (
-  <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="bg-gray-700 text-white">
-          <th className="px-4 py-2 text-left">Metric</th>
-          <th className="px-4 py-2 text-left">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        {Object.entries(result).map(([key, value]) => (
-          <tr key={key} className="border-b border-gray-600">
-            <td className="px-4 py-2 text-white">{key}</td>
-            <td className="px-4 py-2 text-white">{value}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    <button
-      onClick={downloadPDF}
-      className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded"
-    >
-      Download PDF
-    </button>
+        <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-700 text-white">
+                <th className="px-4 py-2 text-left">Metric</th>
+                <th className="px-4 py-2 text-left">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(result).map(([key, value]) => (
+                <tr key={key} className="border-b border-gray-600">
+                  <td className="px-4 py-2 text-white">{key}</td>
+                  <td className="px-4 py-2 text-white">{value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button
+            onClick={downloadPDF}
+            className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded"
+          >
+            Download PDF
+          </button>
+        </div>
+      )}
+    </div>
   </div>
-)}
+);
