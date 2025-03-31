@@ -220,7 +220,7 @@ export default function Home() {
           </button>
         </form>
         {/* Display Results and PDF Download Button */}
-       {result && (
+      {result && (
   <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
     <table className="w-full text-sm">
       <thead>
