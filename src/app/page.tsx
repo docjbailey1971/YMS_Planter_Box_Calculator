@@ -1,6 +1,9 @@
 // app/page.tsx
 "use client";
-import { useState } from 'react';
+import { useRef, useState } from "react";
+// Uncomment these imports if you add PDF generation functionality later
+// import html2canvas from "html2canvas";
+// import { jsPDF } from "jspdf";
 
 const seedTypes = [
   { "Seed Type": "Alfalfa", "Seeds/lb": "210000", "Seeds/Unit": "10500000", "Lbs/Unit": 50 },
@@ -29,22 +32,85 @@ const products = [
   { "Product Name": "Terrasym 450 + DUST + TS201 for Corn Root Worm", "Package Size": 25.0, "Package Units": "oz", "Product Packaging": "Pouches", "Product Cost per Package": "$1,740.50", "Product Cost per oz": "$69.62", "Application Rate in Ounces": 0.5 }
 ];
 
+// Helper function to format numbers with a given number of decimals
+function formatNumber(n: number, decimals = 0): string {
+  return n.toLocaleString(undefined, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+// Define a type for the calculation result
+interface CalculationResult {
+  [key: string]: string | number;
+}
+
 export default function Home() {
   const [selectedSeedType, setSelectedSeedType] = useState("");
-  const [acres, setAcres] = useState<number | ''>('');
+  const [acres, setAcres] = useState<number | "">("");
   const [selectedProduct, setSelectedProduct] = useState("");
-  const [seedingRate, setSeedingRate] = useState<number | ''>('');
-  const [seedOverride, setSeedOverride] = useState<number | ''>('');
+  const [seedingRate, setSeedingRate] = useState<number | "">("");
+  const [seedOverride, setSeedOverride] = useState<number | "">("");
+  const [result, setResult] = useState<CalculationResult | null>(null);
+  // const resultRef = useRef<HTMLDivElement>(null); // For PDF generation
+
+  // Calculation logic – adjust formulas as needed
+  const calculate = () => {
+    const seed = seedTypes.find((s) => s["Seed Type"] === selectedSeedType);
+    const prod = products.find(
+      (p) => p["Product Name"] === selectedProduct
+    );
+    if (!seed || !prod || !acres || !seedingRate) return;
+
+    const seedsPerLb = seedOverride ? parseFloat(seedOverride.toString()) : parseFloat(seed["Seeds/lb"]);
+    const acresNum = typeof acres === "number" ? acres : 0;
+    const seedRateNum = typeof seedingRate === "number" ? seedingRate : 0;
+    const seedsPerUnit = parseFloat(seed["Seeds/Unit"]);
+    const lbsPerUnit = seed["Lbs/Unit"];
+    const appRate = prod["Application Rate in Ounces"];
+    const costPerOz = parseFloat(prod["Product Cost per oz"].replace(/[^\d.-]/g, ""));
+    const costPerPackage = parseFloat(prod["Product Cost per Package"].replace(/[^\d.-]/g, ""));
+    const packageSize = prod["Package Size"];
+
+    // Example calculations – adjust as needed
+    const totalSeeds = acresNum * seedRateNum;
+    const totalWeight = totalSeeds / seedsPerLb;
+    const totalUnits = totalWeight / lbsPerUnit;
+    const totalProductOz = totalUnits * appRate;
+    const totalPackages = Math.ceil(totalProductOz / packageSize);
+
+    const costPerUnit = costPerOz * appRate;
+    const costPerAcre = (costPerUnit * totalUnits) / acresNum;
+    const totalGrowerCost = totalPackages * costPerPackage;
+
+    setResult({
+      "Total Number of Seeds to be Treated": formatNumber(Math.round(totalSeeds)),
+      "Total Weight of Seeds to be Treated": formatNumber(totalWeight),
+      "Total Number of Units to be Treated": formatNumber(totalUnits),
+      "Number of Seeds per Unit": formatNumber(seedsPerUnit),
+      "Application Rate": `${formatNumber(appRate, 2)} oz per unit of seed`,
+      "Total Amount of Product Needed": `${formatNumber(totalProductOz, 2)} oz`,
+      "Total Number of Product Packages": `${formatNumber(totalPackages)} ${prod["Product Packaging"].toLowerCase()}`,
+      "Product Cost per Package": `$${formatNumber(costPerPackage, 2)}`,
+      "Total Cost to the Grower": `$${formatNumber(totalGrowerCost, 2)}`,
+      "Product Cost per Ounce": `$${formatNumber(costPerOz, 2)}`,
+      "Product Cost per Unit of Treated Seed": `$${formatNumber(costPerUnit, 2)}`,
+      "Product Cost per Acre": `$${formatNumber(costPerAcre, 2)}`,
+    });
+  };
+
+  // Optionally, add a downloadPDF function here for PDF generation using html2canvas and jsPDF
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Integration point for calculation logic
+    calculate();
     console.log({
       selectedSeedType,
       acres,
       selectedProduct,
       seedingRate,
-      seedOverride
+      seedOverride,
+      result,
     });
   };
 
@@ -55,7 +121,9 @@ export default function Home() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Seed Type Dropdown */}
           <div>
-            <label className="block mb-1" htmlFor="seedType">Seed Type</label>
+            <label className="block mb-1" htmlFor="seedType">
+              Seed Type
+            </label>
             <select
               id="seedType"
               value={selectedSeedType}
@@ -72,19 +140,25 @@ export default function Home() {
           </div>
           {/* Acres Input */}
           <div>
-            <label className="block mb-1" htmlFor="acres">Number of Acres</label>
+            <label className="block mb-1" htmlFor="acres">
+              Number of Acres
+            </label>
             <input
               id="acres"
               type="number"
               value={acres}
-              onChange={(e) => setAcres(e.target.value ? parseFloat(e.target.value) : '')}
+              onChange={(e) =>
+                setAcres(e.target.value ? parseFloat(e.target.value) : "")
+              }
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter number of acres"
             />
           </div>
           {/* Product Dropdown */}
           <div>
-            <label className="block mb-1" htmlFor="product">Product Selection</label>
+            <label className="block mb-1" htmlFor="product">
+              Product Selection
+            </label>
             <select
               id="product"
               value={selectedProduct}
@@ -101,24 +175,32 @@ export default function Home() {
           </div>
           {/* Seeding Rate Input */}
           <div>
-            <label className="block mb-1" htmlFor="seedingRate">Seeding Rate</label>
+            <label className="block mb-1" htmlFor="seedingRate">
+              Seeding Rate
+            </label>
             <input
               id="seedingRate"
               type="number"
               value={seedingRate}
-              onChange={(e) => setSeedingRate(e.target.value ? parseFloat(e.target.value) : '')}
+              onChange={(e) =>
+                setSeedingRate(e.target.value ? parseFloat(e.target.value) : "")
+              }
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter seeding rate"
             />
           </div>
           {/* Seed Override Input */}
           <div>
-            <label className="block mb-1" htmlFor="seedOverride">Seed Override (seeds per lb)</label>
+            <label className="block mb-1" htmlFor="seedOverride">
+              Seed Override (seeds per lb)
+            </label>
             <input
               id="seedOverride"
               type="number"
               value={seedOverride}
-              onChange={(e) => setSeedOverride(e.target.value ? parseFloat(e.target.value) : '')}
+              onChange={(e) =>
+                setSeedOverride(e.target.value ? parseFloat(e.target.value) : "")
+              }
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter seed override"
             />
@@ -130,6 +212,23 @@ export default function Home() {
             Calculate
           </button>
         </form>
+        {/* Display Results */}
+        {result && (
+          <div className="mt-8 p-4 bg-gray-800 rounded">
+            {Object.entries(result).map(([key, value]) => (
+              <p key={key}>
+                <strong>{key}:</strong> {value}
+              </p>
+            ))}
+            {/* Uncomment below to add a PDF download button once downloadPDF is implemented */}
+            {/* <button
+              onClick={downloadPDF}
+              className="mt-4 bg-green-600 hover:bg-green-700 rounded py-1 px-3"
+            >
+              Download PDF
+            </button> */}
+          </div>
+        )}
       </div>
     </div>
   );
