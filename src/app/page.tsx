@@ -1,9 +1,8 @@
 // app/page.tsx
 "use client";
 import { useRef, useState } from "react";
-// Uncomment these imports if you add PDF generation functionality later
-// import html2canvas from "html2canvas";
-// import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 const seedTypes = [
   { "Seed Type": "Alfalfa", "Seeds/lb": "210000", "Seeds/Unit": "10500000", "Lbs/Unit": 50 },
@@ -32,7 +31,7 @@ const products = [
   { "Product Name": "Terrasym 450 + DUST + TS201 for Corn Root Worm", "Package Size": 25.0, "Package Units": "oz", "Product Packaging": "Pouches", "Product Cost per Package": "$1,740.50", "Product Cost per oz": "$69.62", "Application Rate in Ounces": 0.5 }
 ];
 
-// Helper function to format numbers with a given number of decimals
+// Helper function to format numbers
 function formatNumber(n: number, decimals = 0): string {
   return n.toLocaleString(undefined, {
     minimumFractionDigits: decimals,
@@ -40,7 +39,6 @@ function formatNumber(n: number, decimals = 0): string {
   });
 }
 
-// Define a type for the calculation result
 interface CalculationResult {
   [key: string]: string | number;
 }
@@ -52,14 +50,26 @@ export default function Home() {
   const [seedingRate, setSeedingRate] = useState<number | "">("");
   const [seedOverride, setSeedOverride] = useState<number | "">("");
   const [result, setResult] = useState<CalculationResult | null>(null);
-  // const resultRef = useRef<HTMLDivElement>(null); // For PDF generation
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const downloadPDF = () => {
+    if (!resultRef.current) return;
+    html2canvas(resultRef.current, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "pt", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 20;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+      pdf.save("YieldMaster_Calculation.pdf");
+    });
+  };
 
   // Calculation logic – adjust formulas as needed
   const calculate = () => {
     const seed = seedTypes.find((s) => s["Seed Type"] === selectedSeedType);
-    const prod = products.find(
-      (p) => p["Product Name"] === selectedProduct
-    );
+    const prod = products.find((p) => p["Product Name"] === selectedProduct);
     if (!seed || !prod || !acres || !seedingRate) return;
 
     const seedsPerLb = seedOverride ? parseFloat(seedOverride.toString()) : parseFloat(seed["Seeds/lb"]);
@@ -72,7 +82,6 @@ export default function Home() {
     const costPerPackage = parseFloat(prod["Product Cost per Package"].replace(/[^\d.-]/g, ""));
     const packageSize = prod["Package Size"];
 
-    // Example calculations – adjust as needed
     const totalSeeds = acresNum * seedRateNum;
     const totalWeight = totalSeeds / seedsPerLb;
     const totalUnits = totalWeight / lbsPerUnit;
@@ -98,8 +107,6 @@ export default function Home() {
       "Product Cost per Acre": `$${formatNumber(costPerAcre, 2)}`,
     });
   };
-
-  // Optionally, add a downloadPDF function here for PDF generation using html2canvas and jsPDF
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,21 +219,20 @@ export default function Home() {
             Calculate
           </button>
         </form>
-        {/* Display Results */}
+        {/* Display Results and PDF Download Button */}
         {result && (
-          <div className="mt-8 p-4 bg-gray-800 rounded">
+          <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
             {Object.entries(result).map(([key, value]) => (
               <p key={key}>
                 <strong>{key}:</strong> {value}
               </p>
             ))}
-            {/* Uncomment below to add a PDF download button once downloadPDF is implemented */}
-            {/* <button
+            <button
               onClick={downloadPDF}
               className="mt-4 bg-green-600 hover:bg-green-700 rounded py-1 px-3"
             >
               Download PDF
-            </button> */}
+            </button>
           </div>
         )}
       </div>
