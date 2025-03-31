@@ -220,22 +220,29 @@ export default function Home() {
           </button>
         </form>
         {/* Display Results and PDF Download Button */}
-        {result && (
-          <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
-            {Object.entries(result).map(([key, value]) => (
-              <p key={key}>
-                <strong>{key}:</strong> {value}
-              </p>
-            ))}
-            <button
-              onClick={downloadPDF}
-              className="mt-4 bg-green-600 hover:bg-green-700 rounded py-1 px-3"
-            >
-              Download PDF
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+       {result && (
+  <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="bg-gray-700 text-white">
+          <th className="px-4 py-2 text-left">Metric</th>
+          <th className="px-4 py-2 text-left">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Object.entries(result).map(([key, value]) => (
+          <tr key={key} className="border-b border-gray-600">
+            <td className="px-4 py-2 text-white">{key}</td>
+            <td className="px-4 py-2 text-white">{value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <button
+      onClick={downloadPDF}
+      className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded"
+    >
+      Download PDF
+    </button>
+  </div>
+)}
