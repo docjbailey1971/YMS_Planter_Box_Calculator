@@ -1,4 +1,4 @@
-// app/page.tsx
+// src/app/page.tsx
 "use client";
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
@@ -121,39 +121,40 @@ export default function Home() {
     });
   };
 
- return (
-  <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
-    <div className="w-full max-w-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">YMS Planter Box Calculator</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Add your form fields here */}
-      </form>
-      {result && (
-        <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-700 text-white">
-                <th className="px-4 py-2 text-left">Metric</th>
-                <th className="px-4 py-2 text-left">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(result).map(([key, value]) => (
-                <tr key={key} className="border-b border-gray-600">
-                  <td className="px-4 py-2 text-white">{key}</td>
-                  <td className="px-4 py-2 text-white">{value}</td>
+  return (
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">YMS Planter Box Calculator</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Add your form fields here */}
+        </form>
+        {result && (
+          <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-700 text-white">
+                  <th className="px-4 py-2 text-left">Metric</th>
+                  <th className="px-4 py-2 text-left">Value</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            onClick={downloadPDF}
-            className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded"
-          >
-            Download PDF
-          </button>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {Object.entries(result).map(([key, value]) => (
+                  <tr key={key} className="border-b border-gray-600">
+                    <td className="px-4 py-2 text-white">{key}</td>
+                    <td className="px-4 py-2 text-white">{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button
+              onClick={downloadPDF}
+              className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded"
+            >
+              Download PDF
+            </button>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+}
