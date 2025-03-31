@@ -126,7 +126,44 @@ export default function Home() {
       <div className="w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">YMS Planter Box Calculator</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Add your form fields here */}
+          <input
+            type="text"
+            placeholder="Seed Type"
+            value={selectedSeedType}
+            onChange={(e) => setSelectedSeedType(e.target.value)}
+            className="w-full p-2 bg-gray-800 border border-gray-700"
+          />
+          <input
+            type="number"
+            placeholder="Acres"
+            value={acres}
+            onChange={(e) => setAcres(Number(e.target.value))}
+            className="w-full p-2 bg-gray-800 border border-gray-700"
+          />
+          <input
+            type="text"
+            placeholder="Product"
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
+            className="w-full p-2 bg-gray-800 border border-gray-700"
+          />
+          <input
+            type="number"
+            placeholder="Seeding Rate"
+            value={seedingRate}
+            onChange={(e) => setSeedingRate(Number(e.target.value))}
+            className="w-full p-2 bg-gray-800 border border-gray-700"
+          />
+          <input
+            type="number"
+            placeholder="Seed Override"
+            value={seedOverride}
+            onChange={(e) => setSeedOverride(Number(e.target.value))}
+            className="w-full p-2 bg-gray-800 border border-gray-700"
+          />
+          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">
+            Calculate
+          </button>
         </form>
         {result && (
           <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
