@@ -43,7 +43,7 @@ interface CalculationResult {
 }
 
 export default function Home() {
-  // Form state variables, including rateType
+  // Form state variables
   const [selectedSeedType, setSelectedSeedType] = useState("");
   const [acres, setAcres] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -70,7 +70,11 @@ export default function Home() {
   const calculate = () => {
     const seed = seedTypes.find((s) => s["Seed Type"] === selectedSeedType);
     const prod = products.find((p) => p["Product Name"] === selectedProduct);
-    if (!seed || !prod || !acres || !seedingRate) return;
+    // Check for missing inputs (trimming whitespace for string inputs)
+    if (!seed || !prod || acres.trim() === "" || seedingRate.trim() === "") {
+      console.log("Missing required input", { selectedSeedType, selectedProduct, acres, seedingRate });
+      return;
+    }
 
     const seedsPerLb = overrideSeeds ? parseFloat(overrideSeeds) : parseFloat(seed["Seeds/lb"]);
     const acresNum = parseFloat(acres);
@@ -82,8 +86,18 @@ export default function Home() {
     const costPerPackage = parseFloat(prod["Product Cost per Package"].replace(/[^\d.-]/g, ""));
     const packageSize = prod["Package Size"];
 
-    const totalSeeds = acresNum * seedRateNum;
-    const totalWeight = totalSeeds / seedsPerLb;
+    let totalSeeds, totalWeight;
+    // Adjust calculation based on rate type
+    if (rateType === "lbs") {
+      // If rate is in lbs/acre, then total weight = acres * seedingRate, and convert that to seeds
+      totalWeight = acresNum * seedRateNum;
+      totalSeeds = totalWeight * seedsPerLb;
+    } else {
+      // If rate is in seeds/acre, total seeds is directly calculated
+      totalSeeds = acresNum * seedRateNum;
+      totalWeight = totalSeeds / seedsPerLb;
+    }
+
     const totalUnits = totalWeight / lbsPerUnit;
     const totalProductOz = totalUnits * appRate;
     const totalPackages = Math.ceil(totalProductOz / packageSize);
@@ -177,10 +191,7 @@ export default function Home() {
             >
               <option value="">Select Product</option>
               {products.map((p, i) => (
-                <option
-                  key={i}
-                  value={`${p["Product Name"]} - ${p["Package Size"]} ${p["Package Units"]} - ${p["Product Packaging"]}`}
-                >
+                <option key={i} value={p["Product Name"]}>
                   {`${p["Product Name"]} - ${p["Package Size"]} ${p["Package Units"]} - ${p["Product Packaging"]}`}
                 </option>
               ))}
