@@ -44,14 +44,17 @@ interface CalculationResult {
 }
 
 export default function Home() {
+  // Form state variables
   const [selectedSeedType, setSelectedSeedType] = useState("");
-  const [acres, setAcres] = useState<number | "">("");
+  const [acres, setAcres] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
-  const [seedingRate, setSeedingRate] = useState<number | "">("");
-  const [seedOverride, setSeedOverride] = useState<number | "">("");
+  const [seedingRate, setSeedingRate] = useState("");
+  const [rateType, setRateType] = useState("seeds");
+  const [overrideSeeds, setOverrideSeeds] = useState("");
   const [result, setResult] = useState<CalculationResult | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
+  // Function to generate PDF from the result container
   const downloadPDF = () => {
     if (!resultRef.current) return;
     html2canvas(resultRef.current, { scale: 2 }).then((canvas) => {
@@ -72,9 +75,9 @@ export default function Home() {
     const prod = products.find((p) => p["Product Name"] === selectedProduct);
     if (!seed || !prod || !acres || !seedingRate) return;
 
-    const seedsPerLb = seedOverride ? parseFloat(seedOverride.toString()) : parseFloat(seed["Seeds/lb"]);
-    const acresNum = typeof acres === "number" ? acres : 0;
-    const seedRateNum = typeof seedingRate === "number" ? seedingRate : 0;
+    const seedsPerLb = overrideSeeds ? parseFloat(overrideSeeds) : parseFloat(seed["Seeds/lb"]);
+    const acresNum = parseFloat(acres);
+    const seedRateNum = parseFloat(seedingRate);
     const seedsPerUnit = parseFloat(seed["Seeds/Unit"]);
     const lbsPerUnit = seed["Lbs/Unit"];
     const appRate = prod["Application Rate in Ounces"];
@@ -116,82 +119,148 @@ export default function Home() {
       acres,
       selectedProduct,
       seedingRate,
-      seedOverride,
+      overrideSeeds,
       result,
     });
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">YMS Planter Box Calculator</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Seed Type"
-            value={selectedSeedType}
-            onChange={(e) => setSelectedSeedType(e.target.value)}
-            className="w-full p-2 bg-gray-800 border border-gray-700"
-          />
-          <input
-            type="number"
-            placeholder="Acres"
-            value={acres}
-            onChange={(e) => setAcres(Number(e.target.value))}
-            className="w-full p-2 bg-gray-800 border border-gray-700"
-          />
-          <input
-            type="text"
-            placeholder="Product"
-            value={selectedProduct}
-            onChange={(e) => setSelectedProduct(e.target.value)}
-            className="w-full p-2 bg-gray-800 border border-gray-700"
-          />
-          <input
-            type="number"
-            placeholder="Seeding Rate"
-            value={seedingRate}
-            onChange={(e) => setSeedingRate(Number(e.target.value))}
-            className="w-full p-2 bg-gray-800 border border-gray-700"
-          />
-          <input
-            type="number"
-            placeholder="Seed Override"
-            value={seedOverride}
-            onChange={(e) => setSeedOverride(Number(e.target.value))}
-            className="w-full p-2 bg-gray-800 border border-gray-700"
-          />
-          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">
-            Calculate
-          </button>
+    <div className="max-w-5xl mx-auto p-6 space-y-8 bg-gradient-to-b from-zinc-950 to-zinc-900 text-white min-h-screen">
+      <div className="text-center mb-6">
+        <img src="/yms-logo.png" alt="YMS Logo" width={120} height={120} className="mx-auto mb-2" />
+        <h1 className="text-4xl font-extrabold text-green-400 tracking-tight">YieldMaster Solutions</h1>
+        <p className="text-lg text-zinc-400">Planter Box Treatment Calculator</p>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          className="text-sm text-zinc-400 hover:text-white border border-zinc-600 px-3 py-1 rounded"
+          onClick={() => {
+            const root = document.documentElement;
+            root.classList.toggle("dark");
+          }}
+        >
+          Toggle Theme
+        </button>
+      </div>
+
+      <div className="bg-zinc-800 shadow-lg border border-zinc-700 p-4 rounded">
+        <div className="mb-4">
+          <h2 className="text-green-300 text-xl font-semibold">Calculator Form</h2>
+        </div>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block mb-1">Seed Type</label>
+            <select
+              value={selectedSeedType}
+              onChange={(e) => setSelectedSeedType(e.target.value)}
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+            >
+              <option value="">Select Seed Type</option>
+              {seedTypes.map((s, i) => (
+                <option key={i} value={s["Seed Type"]}>
+                  {s["Seed Type"]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block mb-1">How many acres to be planted?</label>
+            <input
+              type="number"
+              value={acres}
+              onChange={(e) => setAcres(e.target.value)}
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block mb-1">Product</label>
+            <select
+              value={selectedProduct}
+              onChange={(e) => setSelectedProduct(e.target.value)}
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+            >
+              <option value="">Select Product</option>
+              {products.map((p, i) => (
+                <option
+                  key={i}
+                  value={`${p["Product Name"]} - ${p["Package Size"]} ${p["Package Units"]} - ${p["Product Packaging"]}`}
+                >
+                  {`${p["Product Name"]} - ${p["Package Size"]} ${p["Package Units"]} - ${p["Product Packaging"]}`}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block mb-1">Seeding Rate</label>
+            <input
+              type="number"
+              value={seedingRate}
+              onChange={(e) => setSeedingRate(e.target.value)}
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+            />
+          </div>
+          <div>
+            <label className="block mb-1">Rate Type</label>
+            <select
+              value={rateType}
+              onChange={(e) => setRateType(e.target.value)}
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+            >
+              <option value="seeds">Seeds/Acre</option>
+              <option value="lbs">Lbs/Acre</option>
+            </select>
+          </div>
+          <div className="md:col-span-2">
+            <label className="block mb-1">Override Seeds per Pound (optional)</label>
+            {selectedSeedType && (
+              <div className="text-sm text-zinc-400 mb-1">
+                Default Seeds/lb for {selectedSeedType}:{" "}
+                {seedTypes.find((s) => s["Seed Type"] === selectedSeedType)?.["Seeds/lb"]}
+              </div>
+            )}
+            <input
+              type="number"
+              value={overrideSeeds}
+              onChange={(e) => setOverrideSeeds(e.target.value)}
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+            />
+          </div>
+          <div className="md:col-span-2 text-center">
+            <button
+              type="button"
+              onClick={calculate}
+              className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-full text-lg"
+            >
+              Calculate
+            </button>
+          </div>
         </form>
-        {result && (
-          <div ref={resultRef} className="mt-8 p-4 bg-gray-800 rounded">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-700 text-white">
-                  <th className="px-4 py-2 text-left">Metric</th>
-                  <th className="px-4 py-2 text-left">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(result).map(([key, value]) => (
-                  <tr key={key} className="border-b border-gray-600">
-                    <td className="px-4 py-2 text-white">{key}</td>
-                    <td className="px-4 py-2 text-white">{value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      </div>
+
+      {result && (
+        <div ref={resultRef} className="mt-6 border border-green-400 bg-zinc-800 text-white shadow-lg rounded p-4">
+          <h2 className="text-center text-2xl font-semibold text-green-300 mb-4">
+            Calculation Results
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(result).map(([label, value], i) => (
+              <div key={i} className="bg-zinc-900 rounded-xl p-3 border border-zinc-700">
+                <strong className="text-green-400 block text-sm mb-1">{label}</strong>
+                <span className="text-lg font-medium">{value}</span>
+              </div>
+            ))}
+          </div>
+          <div className="text-center my-4">
             <button
               onClick={downloadPDF}
-              className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded"
+              className="bg-green-700 hover:bg-green-600 px-6 py-2 rounded-full text-white"
             >
               Download PDF
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
