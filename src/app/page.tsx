@@ -43,16 +43,16 @@ interface CalculationResult {
 }
 
 export default function Home() {
-  // Form state variables
+  // Form state variables, including rateType
   const [selectedSeedType, setSelectedSeedType] = useState("");
   const [acres, setAcres] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [seedingRate, setSeedingRate] = useState("");
+  const [rateType, setRateType] = useState("seeds");
   const [overrideSeeds, setOverrideSeeds] = useState("");
   const [result, setResult] = useState<CalculationResult | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
-  // PDF download function
   const downloadPDF = () => {
     if (!resultRef.current) return;
     html2canvas(resultRef.current, { scale: 2 }).then((canvas) => {
@@ -67,7 +67,6 @@ export default function Home() {
     });
   };
 
-  // Calculation logic
   const calculate = () => {
     const seed = seedTypes.find((s) => s["Seed Type"] === selectedSeedType);
     const prod = products.find((p) => p["Product Name"] === selectedProduct);
